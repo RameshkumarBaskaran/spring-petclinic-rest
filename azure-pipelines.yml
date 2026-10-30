@@ -3,7 +3,7 @@ trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  name: PetClinic-Lab-Pool
 
 variables:
   MAVEN_OPTS: '-Xmx2048m'
