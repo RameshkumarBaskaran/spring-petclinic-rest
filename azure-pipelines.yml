@@ -1,0 +1,36 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  MAVEN_OPTS: '-Xmx2048m'
+
+steps:
+- task: JavaToolInstaller@0
+  displayName: 'Set up Java 22'
+  inputs:
+    versionSpec: '22'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+- task: Maven@4
+  displayName: 'Build and test PetClinic REST'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean package'
+    options: '-B'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.22'
+    mavenVersionOption: 'Default'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish PetClinic JAR'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/target'
+    ArtifactName: 'petclinic-app'
+    publishLocation: 'Container'
