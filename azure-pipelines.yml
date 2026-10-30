@@ -9,13 +9,6 @@ variables:
   MAVEN_OPTS: '-Xmx2048m'
 
 steps:
-- task: JavaToolInstaller@0
-  displayName: 'Set up Java 22'
-  inputs:
-    versionSpec: '22'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'PreInstalled'
-
 - task: Maven@4
   displayName: 'Build and test PetClinic REST'
   inputs:
@@ -24,13 +17,13 @@ steps:
     options: '-B'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.22'
+    javaHomeOption: 'Path'
+    jdkDirectory: 'C:\Program Files\Java\jdk-22'
     mavenVersionOption: 'Default'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish PetClinic JAR'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/target'
+    PathtoPublish: '$(Build.SourcesDirectory)/target/spring-petclinic-rest-4.0.2.jar'
     ArtifactName: 'petclinic-app'
     publishLocation: 'Container'
