@@ -21,9 +21,26 @@ steps:
     jdkDirectory: 'C:\Program Files\Java\jdk-22'
     mavenVersionOption: 'Default'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish PetClinic JAR'
+# Copy the JAR into the artifact folder
+- task: CopyFiles@2
+  displayName: 'Copy JAR to artifact'
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/target/spring-petclinic-rest-4.0.2.jar'
+    SourceFolder: '$(Build.SourcesDirectory)/target'
+    Contents: 'spring-petclinic-rest-4.0.2.jar'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/petclinic-app'
+
+# Copy the Dockerfile from the repository
+- task: CopyFiles@2
+  displayName: 'Copy Dockerfile to artifact'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'Dockerfile'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/petclinic-app'
+
+# Publish both files together
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish PetClinic Docker artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/petclinic-app'
     ArtifactName: 'petclinic-app'
     publishLocation: 'Container'
