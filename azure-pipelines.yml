@@ -1,4 +1,4 @@
-
+```yaml
 trigger:
 - master
 
@@ -6,9 +6,12 @@ pool:
   name: PetClinic-Lab-Pool
 
 variables:
-  MAVEN_OPTS: '-Xmx2048m'
+- group: PetClinic-DEV-K8s
+- name: MAVEN_OPTS
+  value: '-Xmx2048m'
 
 steps:
+# Build and test PetClinic
 - task: Maven@4
   displayName: 'Build and test PetClinic REST'
   inputs:
@@ -29,7 +32,7 @@ steps:
     Contents: 'spring-petclinic-rest-4.0.2.jar'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/petclinic-app'
 
-# Copy the Dockerfile from the repository
+# Copy Dockerfile from the repository
 - task: CopyFiles@2
   displayName: 'Copy Dockerfile to artifact'
   inputs:
@@ -37,10 +40,30 @@ steps:
     Contents: 'Dockerfile'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/petclinic-app'
 
-# Publish both files together
+# Publish the JAR and Dockerfile
 - task: PublishBuildArtifacts@1
   displayName: 'Publish PetClinic Docker artifact'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)/petclinic-app'
     ArtifactName: 'petclinic-app'
     publishLocation: 'Container'
+
+# Test connectivity and authentication to DEV Kubernetes
+- task: PowerShell@2
+  displayName: 'Test DEV Kubernetes Connection'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $headers = @{
+        Authorization = "Bearer $env:K8S_TOKEN"
+      }
+
+      $response = Invoke-RestMethod `
+        -Uri "$env:K8S_API_SERVER/version" `
+        -Headers $headers
+
+      Write-Host "Connected to Kubernetes API"
+      Write-Host "Kubernetes version: $($response.gitVersion)"
+  env:
+    K8S_API_SERVER: $(K8S_API_SERVER)
+    K8S_TOKEN: $(K8S_TOKEN)
