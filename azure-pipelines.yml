@@ -3,7 +3,7 @@ trigger:
 - master
 
 pool:
-  name: PetClinic-Lab-Pool
+  name: K8s-Lab-Agent-Pool
 
 variables:
 - group: PetClinic-DEV-K8s
