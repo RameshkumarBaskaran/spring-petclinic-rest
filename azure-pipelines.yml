@@ -1,3 +1,4 @@
+
 trigger:
 - master
 
@@ -10,6 +11,15 @@ variables:
   value: '-Xmx2048m'
 
 steps:
+
+# Identify which agent executes this pipeline
+- script: |
+    echo "Agent name: $(Agent.Name)"
+    echo "Machine name: $(Agent.MachineName)"
+    echo "Agent work directory: $(Agent.WorkFolder)"
+    hostname
+  displayName: "Identify Pipeline Agent"
+
 # Build and test PetClinic
 - task: Maven@4
   displayName: 'Build and test PetClinic REST'
