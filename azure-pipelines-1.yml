@@ -1,12 +1,27 @@
+
 trigger: none
 
 pool:
   name: K8s-Lab-Agent-Pool
 
 steps:
+- checkout: self
+
 - script: |
-    echo "Hello from Kubernetes self-hosted agent!"
-    echo "Agent: $(Agent.Name)"
-    echo "Machine: $(Agent.MachineName)"
-    hostname
-  displayName: "Verify Kubernetes Agent"
+    echo "Installing Java and Maven on the Kubernetes agent"
+    apt-get update
+    apt-get install -y openjdk-21-jdk maven
+
+    java -version
+    mvn -version
+  displayName: "Install and verify Java and Maven"
+
+- script: |
+    echo "Building PetClinic and running unit tests"
+    mvn clean verify
+  displayName: "Maven Build and Unit Tests"
+
+- script: |
+    echo "Checking the generated JAR"
+    ls -lh target/*.jar
+  displayName: "Verify Maven JAR"
