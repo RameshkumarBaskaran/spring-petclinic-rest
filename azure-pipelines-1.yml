@@ -8,20 +8,37 @@ steps:
 - checkout: self
 
 - script: |
-    echo "Installing Java and Maven on the Kubernetes agent"
+    set -e
+
+    echo "Installing Java 21 and Maven 3.9.9"
+
     apt-get update
-    apt-get install -y openjdk-21-jdk maven
+    apt-get install -y openjdk-21-jdk curl tar
+
+    cd /tmp
+
+    curl -fSL \
+      https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz \
+      -o apache-maven-3.9.9-bin.tar.gz
+
+    tar -xzf apache-maven-3.9.9-bin.tar.gz
+
+    mv apache-maven-3.9.9 /opt/apache-maven-3.9.9
+
+    echo "##vso[task.prependpath]/opt/apache-maven-3.9.9/bin"
 
     java -version
     mvn -version
-  displayName: "Install and verify Java and Maven"
+  displayName: "Install Java 21 and Maven 3.9.9"
 
 - script: |
+    set -e
     echo "Building PetClinic and running unit tests"
     mvn clean verify
   displayName: "Maven Build and Unit Tests"
 
 - script: |
+    set -e
     echo "Checking the generated JAR"
     ls -lh target/*.jar
   displayName: "Verify Maven JAR"
