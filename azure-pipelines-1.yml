@@ -1,0 +1,12 @@
+trigger: none
+
+pool:
+  name: K8s-Lab-Agent-Pool
+
+steps:
+- script: |
+    echo "Hello from Kubernetes self-hosted agent!"
+    echo "Agent: $(Agent.Name)"
+    echo "Machine: $(Agent.MachineName)"
+    hostname
+  displayName: "Verify Kubernetes Agent"
