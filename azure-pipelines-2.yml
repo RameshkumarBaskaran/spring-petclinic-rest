@@ -1,0 +1,15 @@
+
+trigger: none
+
+pool:
+  name: K8s-Lab-Agent-Pool
+
+steps:
+  - script: |
+      echo "Kubernetes Azure DevOps Agent is working"
+      echo "Agent: $(Agent.Name)"
+      echo "Machine: $(Agent.MachineName)"
+      echo "Operating System: $(Agent.OS)"
+      echo "Current directory:"
+      pwd
+    displayName: 'Verify Kubernetes Agent'
