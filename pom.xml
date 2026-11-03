@@ -50,8 +50,7 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     </properties>
-
-    <!-- Publish release artifacts to Nexus Repository Manager -->
+          <!-- Publish release artifacts to Nexus Repository Manager -->
     <distributionManagement>
         <repository>
             <id>nexus-releases</id>
