@@ -21,6 +21,8 @@ import org.springframework.samples.petclinic.rest.controller.v1.OwnerRestControl
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -543,6 +545,21 @@ class OwnerRestControllerV1Tests {
 
     @Test
     @WithMockUser(roles = "OWNER_ADMIN")
+    void testCreateVisitWithoutDateShouldReturnBadRequest() throws Exception {
+        VisitDto newVisit = visits.get(0);
+        newVisit.setId(null);
+        newVisit.setDate(null);
+        ObjectMapper mapper = new ObjectMapper();
+        String newVisitAsJSON = mapper.writeValueAsString(newVisit);
+        this.mockMvc.perform(post("/api/owners/1/pets/1/visits")
+                .content(newVisitAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value("MethodArgumentNotValidException"))
+            .andExpect(jsonPath("$.schemaValidationErrors[0].field").value("date"));
+    }
+
+    @Test
+    @WithMockUser(roles = "OWNER_ADMIN")
     void testGetOwnerPetSuccess() throws Exception {
         var owner = ownerMapper.toOwner(owners.get(0));
         given(this.clinicService.findOwnerById(2)).willReturn(owner);
@@ -661,6 +678,50 @@ class OwnerRestControllerV1Tests {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.title").value("MethodArgumentNotValidException"))
             .andExpect(jsonPath("$.schemaValidationErrors[0].field").value("birthDate"));
+    }
+
+    private String ownerJson(String telephone) {
+        return """
+            {
+                "firstName": "John",
+                "lastName": "Doe",
+                "address": "123 Main Street",
+                "city": "Springfield",
+                "telephone": "%s"
+            }
+            """.formatted(telephone);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "123456789",
+        "12345678901",
+        "abcdefghij",
+        "+123456789"
+    })
+    void shouldRejectInvalidTelephoneOnCreate(String telephone) throws Exception {
+        mockMvc.perform(post("/api/owners")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ownerJson(telephone)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value("MethodArgumentNotValidException"))
+            .andExpect(jsonPath("$.schemaValidationErrors[0].field").value("telephone"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "123456789",
+        "12345678901",
+        "abcdefghij",
+        "+123456789"
+    })
+    void shouldRejectInvalidTelephoneOnUpdate(String telephone) throws Exception {
+        mockMvc.perform(put("/api/owners/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ownerJson(telephone)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value("MethodArgumentNotValidException"))
+            .andExpect(jsonPath("$.schemaValidationErrors[0].field").value("telephone"));
     }
 
 }

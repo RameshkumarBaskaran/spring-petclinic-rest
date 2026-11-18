@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS owners (
   last_name VARCHAR(30),
   address VARCHAR(255),
   city VARCHAR(80),
-  telephone VARCHAR(20),
+  telephone VARCHAR(10) NOT NULL,
   INDEX(last_name)
 ) engine=InnoDB;
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS pets (
 CREATE TABLE IF NOT EXISTS visits (
   id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   pet_id INT(4) UNSIGNED NOT NULL,
-  visit_date DATE,
+  visit_date DATE NOT NULL,
   description VARCHAR(255) NOT NULL,
   FOREIGN KEY (pet_id) REFERENCES pets(id)
 ) engine=InnoDB;
